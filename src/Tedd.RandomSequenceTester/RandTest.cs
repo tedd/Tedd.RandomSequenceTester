@@ -10,15 +10,8 @@ namespace Tedd
         private long[] ccount = new long[256];          // Bins to count occurrences of values
         private long totalc = 0;                        // Total bytes counted
 
-        /// <summary>
-        /// Calculate log to the base 2
-        /// </summary>
-        /// <param name="x"></param>
-        /// <returns></returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static double rt_log2(double x) => log2of10 * Math.Log10(x);
 
-        private const int MONTEN = 6;             // Bytes used as Monte Carlo co-ordinates. This should be no more bits than the mantissa of your "double" floating point type.
+        private const int MONTEN = 6;             // Bytes used as Monte Carlo co-ordinates. This should be no more bits than the mantissa of double.
 
         private bool sccfirst = true;
         private int mp;
@@ -27,6 +20,14 @@ namespace Tedd
 
         private double incirc = Math.Pow(Math.Pow(256.0D, (double)(MONTEN / 2)) - 1, 2.0D); // 65535.0 * 65535.0;     // In-circle distance for Monte Carlo
         private double montex, montey, sccun, sccu0, scclast, scct1, scct2, scct3;
+
+        /// <summary>
+        /// Calculate log to the base 2
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static double rt_log2(double x) => log2of10 * Math.Log10(x);
 
         /// <summary>
         /// Add data.
@@ -38,15 +39,14 @@ namespace Tedd
             for (var i = 0; i < bytes.Length; i++)
             {
                 var c = bytes[i];
-                ccount[(byte)c]++;          /* Update counter for this bin */
+                ccount[(byte)c]++;
                 totalc++;
 
-                /* Update inside / outside circle counts for Monte Carlo
-                   computation of PI */
-
-                monte[mp++] = c;       /* Save character for Monte Carlo */
+                // Update inside / outside circle counts for Monte Carlo computation of PI.
+                monte[mp++] = c;
                 if (mp >= MONTEN)
-                {     /* Calculate every MONTEN character */
+                {     
+                    // Calculate every MONTEN character
                     int mj;
 
                     mp = 0;
@@ -61,8 +61,7 @@ namespace Tedd
                         inmont++;
                 }
 
-                /* Update calculation of serial correlation coefficient */
-
+                // Update serial correlation coefficiency
                 sccun = c;
                 if (sccfirst)
                 {
