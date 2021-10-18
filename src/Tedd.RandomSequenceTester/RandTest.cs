@@ -7,19 +7,15 @@ namespace Tedd
     {
         private const double log2of10 = 3.32192809488736234787D;
 
-        private long[] ccount = new long[256];          // Bins to count occurrences of values
-        private long totalc = 0;                        // Total bytes counted
-
-
-        private const int MONTEN = 6;             // Bytes used as Monte Carlo co-ordinates. This should be no more bits than the mantissa of double.
-
-        private bool sccfirst = true;
-        private int mp;
-        private uint[] monte = new uint[MONTEN];
-        private long inmont, mcount;
-
-        private double incirc = Math.Pow(Math.Pow(256.0D, (double)(MONTEN / 2)) - 1, 2.0D); // 65535.0 * 65535.0;     // In-circle distance for Monte Carlo
-        private double montex, montey, sccun, sccu0, scclast, scct1, scct2, scct3;
+        private readonly long[] _charCount = new long[256];
+        private long _totalBytes = 0;
+        private const int MONTEN = 6;                               // Bytes used as Monte Carlo co-ordinates. This should be no more bits than the mantissa of double.
+        private bool _sccFirst = true;
+        private int _mp;
+        private readonly uint[] _monte = new uint[MONTEN];
+        private long _inmont, _mcount;
+        private readonly double _incirc = Math.Pow(Math.Pow(256.0D, (double)(MONTEN / 2)) - 1, 2.0D); // 65535.0 * 65535.0;     // In-circle distance for Monte Carlo
+        private double sccu0, scclast, scct1, scct2, scct3;
 
         /// <summary>
         /// Calculate log to the base 2
@@ -39,33 +35,34 @@ namespace Tedd
             for (var i = 0; i < bytes.Length; i++)
             {
                 var c = bytes[i];
-                ccount[(byte)c]++;
-                totalc++;
+                _charCount[(byte)c]++;
+                _totalBytes++;
 
                 // Update inside / outside circle counts for Monte Carlo computation of PI.
-                monte[mp++] = c;
-                if (mp >= MONTEN)
-                {     
+                _monte[_mp++] = c;
+                if (_mp >= MONTEN)
+                {
                     // Calculate every MONTEN character
                     int mj;
 
-                    mp = 0;
-                    mcount++;
-                    montex = montey = 0;
+                    _mp = 0;
+                    _mcount++;
+                    var montex = 0D;
+                    var montey = 0D;
                     for (mj = 0; mj < MONTEN / 2; mj++)
                     {
-                        montex = (montex * 256.0D) + monte[mj];
-                        montey = (montey * 256.0D) + monte[(MONTEN / 2) + mj];
+                        montex = (montex * 256.0D) + _monte[mj];
+                        montey = (montey * 256.0D) + _monte[(MONTEN / 2) + mj];
                     }
-                    if ((montex * montex + montey * montey) <= incirc)
-                        inmont++;
+                    if ((montex * montex + montey * montey) <= _incirc)
+                        _inmont++;
                 }
 
                 // Update serial correlation coefficiency
-                sccun = c;
-                if (sccfirst)
+                var sccun = c;
+                if (_sccFirst)
                 {
-                    sccfirst = false;
+                    _sccFirst = false;
                     scclast = 0;
                     sccu0 = sccun;
                 }
@@ -87,7 +84,7 @@ namespace Tedd
             var ent = CalculateEntropy(prob);
             var montepi = CalculateMonteCarloPI();
 
-            return (totalc, ent, chisq, mean, montepi, scc);
+            return (_totalBytes, ent, chisq, mean, montepi, scc);
         }
 
         /// <summary>
@@ -100,9 +97,9 @@ namespace Tedd
             var bmm = 256;
             for (var i = 0; i < bmm; i++)
             {
-                sum += ((double)i) * ccount[i];
+                sum += ((double)i) * _charCount[i];
             }
-            return sum / totalc;
+            return sum / _totalBytes;
         }
 
         /// <summary>
@@ -113,11 +110,11 @@ namespace Tedd
         {
             var pscct1 = scct1 + scclast * sccu0;
             var pscct2 = scct2 * scct2;
-            var scc = totalc * scct3 - pscct2;
+            var scc = _totalBytes * scct3 - pscct2;
             if (scc == 0.0)
                 scc = -100000;
             else
-                scc = (totalc * pscct1 - pscct2) / scc;
+                scc = (_totalBytes * pscct1 - pscct2) / scc;
             return scc;
         }
 
@@ -133,12 +130,12 @@ namespace Tedd
             prob = new double[256];
             double chisq = 0;
             var bmm = 256;
-            var cexp = totalc / (double)bmm;  /* Expected count per bin */
+            var cexp = _totalBytes / (double)bmm;  // Expected count per bin
             for (var i = 0; i < bmm; i++)
             {
-                var a = ccount[i] - cexp; ;
+                var a = _charCount[i] - cexp; ;
 
-                prob[i] = ((double)ccount[i]) / totalc;
+                prob[i] = ((double)_charCount[i]) / _totalBytes;
                 chisq += (a * a) / cexp;
             }
             return chisq;
@@ -164,11 +161,11 @@ namespace Tedd
         /// <summary>
         /// Calculate Monte Carlo value for PI from percentage of hits within the circle.
         /// </summary>
-        private double CalculateMonteCarloPI() => 4.0 * (((double)inmont) / mcount);
+        private double CalculateMonteCarloPI() => 4.0 * (((double)_inmont) / _mcount);
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+
         }
     }
 }
