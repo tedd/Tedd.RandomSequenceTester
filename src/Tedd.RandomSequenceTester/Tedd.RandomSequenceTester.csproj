@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <language>latest</language>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Tedd Hansen</Authors>
+    <Company>Tedd Hansen</Company>
+    <Description>Test random data for randomness.</Description>
+    <Copyright>Tedd Hansen</Copyright>
+    <PackageProjectUrl>https://github.com/tedd/Tedd.RandomSequenceTester</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tedd/Tedd.RandomSequenceTester.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>pseudorandom random test</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+  </ItemGroup>
+
+</Project>
